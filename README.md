@@ -1,2 +1,2 @@
 # STEM-Greenhouse
-HTML and CSS for the Webpage
+HTML and CSS for the Stem Greenhouse class project webpage
