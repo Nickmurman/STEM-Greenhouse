@@ -1,0 +1,20 @@
+<DOCTYPE! hmtl>
+<body>
+
+<img src= /> 
+     <h1 style=font-size:33px;text-align:center;color:green;font-family:Arial> STEM GREENHOUSE </h1>
+<p style=text-align:center;font-family:Impact;
+
+
+          <ul style=text-align:center;font-family:Impact;color:purple;font-size:25px> IT Contributors </ul>
+
+                <li style=text-align:center> <strong>Nick Murray</strong> - Group Lead </li>
+       
+                <li style=text-align:center> <strong>Dexter Norris</strong> - Coding Lead </li>
+                  
+                <li style=text-align:center> <strong>Lukas Vann Struth</strong> - Materials Lead </li>
+                   
+                <li style=text-align:center> <strong> Samuel Sidorchuck</strong>- Monkey  </li>
+           </ul>
+
+        <p style=text-align:center;font-size:20px;font-family:Arial> Below is a graph that is displaying real-time vitals of the Smart Greenhouse: </p>
