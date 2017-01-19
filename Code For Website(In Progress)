@@ -1,9 +1,15 @@
 <DOCTYPE! hmtl>
-<body>
 
-<img src= /> 
-     <h1 style=font-size:33px;text-align:center;color:green;font-family:Arial> STEM GREENHOUSE </h1>
-<p style=text-align:center;font-family:Impact;
+<body>
+<style>
+body { background-image: url("https://wallpaperscraft.com/image/summer_nature_grass_beautiful_light_84335_1920x1080.jpg")
+}
+
+</style>
+</body>
+        <img src=<a href="http://tinypic.com?ref=52jbck" target="_blank"><img src="http://i67.tinypic.com/52jbck.png" border="0" alt="Image and video hosting by TinyPic"></a>    
+                 <h1 style=font-size:33px;text-align:center;color:green;font-family:Arial> STEM GREENHOUSE </h1>
+                <p style=text-align:center;font-family:Impact; </p>
 
 
           <ul style=text-align:center;font-family:Impact;color:purple;font-size:25px> IT Contributors </ul>
@@ -17,4 +23,6 @@
                 <li style=text-align:center> <strong> Samuel Sidorchuck</strong>- Monkey  </li>
            </ul>
 
-        <p style=text-align:center;font-size:20px;font-family:Arial> Below is a graph that is displaying real-time vitals of the Smart Greenhouse: </p>
+        <p style=text-align:center;font-size:20px;font-family:Arial;color:white> Below is a graph that is displaying real-time vitals of the Smart Greenhouse: </p>
+
+
