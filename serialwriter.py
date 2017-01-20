@@ -8,8 +8,3 @@ while True:
     s[0] = ser.readline()
     print (s[0])
     print (read_serial)
-class SerialWriter(object):
-    """docstring for SerialWriter."""
-    def __init__(self, arg):
-        super(SerialWriter, self).__init__()
-        self.arg = arg
