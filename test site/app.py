@@ -4,7 +4,7 @@ import graphgen
 app = Flask(__name__)
 temperatures = [25,14,17,20,20,21,23,17,20,20,17]
 humidities = [72,65,61,62,79,62,66,53,51,71]
-graphgen.gengraph()
+#graphgen.gengraph()
 @app.route('/')
 def index():
     return render_template('index.html.j2', temp=random.choice(temperatures), humid=random.choice(humidities))

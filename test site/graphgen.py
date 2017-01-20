@@ -14,4 +14,4 @@ def gengraph():
     line_chart.x_labels = map(str, range(1,12))
     line_chart.add('A', datalist1)
     line_chart.add('B', datalist2)
-    line_chart.render_to_file('test.svg')
+    line_chart.render_to_png('~/Documents/Flask\ Demo/test\ site/templates/test.png')
