@@ -5,10 +5,16 @@ This module handles all the data incoming and writes it to a file.
 from time import sleep
 import datetime
 import serial
+import pygal
+import logging
+
+logging.basicConfig(filename='data.log', level=logging.DEBUG)
+
 
 DATA_SOURCE = {
-1 : 'AdTemp1', 2 : 'AdTemp2', 3 : 'AdTemp3', 4 : 'AdTemp4', 5 : 'AdTemp5',
-6 : 'AdHumid1', 7 : 'AdHumid2', 8 : 'AdHumid3', 9 : 'AdHumid4', 10 : 'AdHumid5'}
+    1 : 'AdTemp1', 2 : 'AdTemp2', 3 : 'AdTemp3', 4 : 'AdTemp4', 5 : 'AdTemp5',
+    6 : 'AdHumid1', 7 : 'AdHumid2', 8 : 'AdHumid3', 9 : 'AdHumid4',
+    10 : 'AdHumid5'}
 
 class DataSet(object):
     """
@@ -30,18 +36,21 @@ class DataSet(object):
         """call() simply returns all the values stored in the DataPoint"""
         return self.id, self.value, self.time
 
-#Selecting all the files that will be used to record data
-TEMPFILE_1 = open('data/artemps1.txt', 'r+')
-TEMPFILE_2 = open('data/artemps2.txt', 'r+')
-TEMPFILE_3 = open('data/artemps3.txt', 'r+')
-TEMPFILE_4 = open('data/artemps4.txt', 'r+')
-TEMPFILE_5 = open('data/artemps5.txt', 'r+')
+def log_serial_error(ardnum):
+    logging.warning('Warning, Arduino %s didn\'t send data when requested', ardnum)
 
-HUMIDFILE_1 = open('data/arhumids1.txt', 'r+')
-HUMIDFILE_2 = open('data/arhumids2.txt', 'r+')
-HUMIDFILE_3 = open('data/arhumids3.txt', 'r+')
-HUMIDFILE_4 = open('data/arhumids4.txt', 'r+')
-HUMIDFILE_5 = open('data/arhumids5.txt', 'r+')
+#Selecting all the files that will be used to record data
+TEMPFILE_1 = open('data/ardtemps1.txt', 'r+')
+TEMPFILE_2 = open('data/ardtemps2.txt', 'r+')
+TEMPFILE_3 = open('data/ardtemps3.txt', 'r+')
+TEMPFILE_4 = open('data/ardtemps4.txt', 'r+')
+TEMPFILE_5 = open('data/ardtemps5.txt', 'r+')
+
+HUMIDFILE_1 = open('data/ardhumids1.txt', 'r+')
+HUMIDFILE_2 = open('data/ardhumids2.txt', 'r+')
+HUMIDFILE_3 = open('data/ardhumids3.txt', 'r+')
+HUMIDFILE_4 = open('data/ardhumids4.txt', 'r+')
+HUMIDFILE_5 = open('data/ardhumids5.txt', 'r+')
 
 TEMPSTORAGE_1 = []
 TEMPSTORAGE_2 = []
@@ -55,6 +64,8 @@ HUMIDSTORAGE_3 = []
 HUMIDSTORAGE_4 = []
 HUMIDSTORAGE_5 = []
 
+TIMESTORAGE = []
+
 SER1 = serial.Serial('/dev/ttyUSB0', 9600)
 SER2 = serial.Serial('/dev/ttyUSB1', 9600)
 SER3 = serial.Serial('/dev/ttyUSB2', 9600)
@@ -65,30 +76,32 @@ while True:
     #Make sure the date recorded for the data is the current time
     DATETIME = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    TIMESTORAGE.append(DATETIME)
+
     try:
         #Convert the data from the serial buffer into a normal string
         CURRENT_HUMID_1 = str(SER1.readline().decode().strip())
         HUMIDSTORAGE_1.append(CURRENT_HUMID_1)
     except IOError:
-        print("Error: Arduino 1 didn't send data when requested.")
+        log_serial_error(1)
 
     try:
         CURRENT_HUMID_2 = str(SER2.readline().decode().strip())
         HUMIDSTORAGE_2.append(CURRENT_HUMID_2)
     except IOError:
-        print("Error: Arduino 2 didn't send data when requested.")
+        log_serial_error(2)
 
     try:
         CURRENT_HUMID_3 = str(SER3.readline().decode().strip())
         HUMIDSTORAGE_3.append(CURRENT_HUMID_3)
     except IOError:
-        print("Error: Arduino 3 didn't send data when requested.")
+        log_serial_error()
 
     try:
         CURRENT_HUMID_4 = str(SER4.readline().decode().strip())
         HUMIDSTORAGE_4.append(CURRENT_HUMID_4)
     except IOError:
-        print("Error: Arduino 4 didn't send data when requested.")
+        log_serial_error()
 
         #TODO Figure out how to read data correctly twice from one arduino.
         #CURRENT_HUMID_5 = str(SER5.readline().decode().strip())
@@ -97,29 +110,30 @@ while True:
         CURRENT_TEMP_1 = str(SER1.readline().decode().strip())
         TEMPSTORAGE_1.append(CURRENT_TEMP_1)
     except IOError:
-        print("Error: Arduino 1 didn't send data when requested.")
+        log_serial_error()
 
     try:
         CURRENT_TEMP_2 = str(SER2.readline().decode().strip())
         TEMPSTORAGE_2.append(CURRENT_TEMP_2)
     except IOError:
-        print("Error: Arduino 2 didn't send data when requested.")
+        log_serial_error()
 
     try:
         CURRENT_TEMP_3 = str(SER3.readline().decode().strip())
         TEMPSTORAGE_3.append(CURRENT_TEMP_3)
     except IOError:
-        print("Error: Arduino 3 didn't send data when requested.")
+        log_serial_error()
 
     try:
         CURRENT_TEMP_4 = str(SER4.readline().decode().strip())
         TEMPSTORAGE_4.append(CURRENT_TEMP_4)
     except IOError:
-        print("Error: Arduino 4 didn't send data when requested.")
+        log_serial_error()
 
     #CURRENT_TEMP_5 = str(SER5.readline().decode().strip())
 
-    if COUNTER >= 10:
+
+    if COUNTER >= 4:
         for x in HUMIDSTORAGE_1:
             HUMIDFILE_1.write(x)
         for x in HUMIDSTORAGE_2:
@@ -129,6 +143,7 @@ while True:
         for x in HUMIDSTORAGE_4:
             HUMIDFILE_4.write(x)
 
+
         for x in TEMPSTORAGE_1:
             TEMPFILE_1.write(x)
         for x in TEMPSTORAGE_2:
@@ -137,6 +152,27 @@ while True:
             TEMPFILE_3.write(x)
         for x in TEMPSTORAGE_4:
             TEMPFILE_4.write(x)
+
+
+        TEMP_CHART = pygal.Line(style=DarkStyle, width=1600, height=800,
+        range=(0, 31))
+        TEMP_CHART.title = 'Temperature Chart for the Last Hour'
+        TEMP_CHART.x_labels = map(str, TIMESTORAGE)
+        TEMP_CHART.add('Arduino 1', TEMPSTORAGE_1)
+        TEMP_CHART.add('Arduino 2', TEMPSTORAGE_2)
+        TEMP_CHART.add('Arduino 3', TEMPSTORAGE_3)
+        TEMP_CHART.add('Arduino 4', TEMPSTORAGE_4)
+        TEMP_CHART.render_to_png('/home/aegon/Documents/STEM-Greenhouse/templates/tempchart.png')
+
+        HUMID_CHART = pygal.Line(style=DarkStyle, width=1600, height=800,
+        range=(0, 31))
+        HUMID_CHART.title = 'Temperature Chart for the Last Hour'
+        HUMID_CHART.x_labels = map(str, TIMESTORAGE)
+        HUMID_CHART.add('Arduino 1', TEMPSTORAGE_1)
+        HUMID_CHART.add('Arduino 2', TEMPSTORAGE_2)
+        HUMID_CHART.add('Arduino 3', TEMPSTORAGE_3)
+        HUMID_CHART.add('Arduino 4', TEMPSTORAGE_4)
+        HUMID_CHART.render_to_png('/home/aegon/Documents/STEM-Greenhouse/templates/tempchart.png')
 
     COUNTER += 1
     sleep(1)
