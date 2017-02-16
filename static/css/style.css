@@ -31,11 +31,11 @@ Form
 
 /* ==== Reset ==== */
 
-html, body, div, span, 
-h1, h2, h3, h4, h5, h6, 
-p, a, img, ol, ul, li, 
-form, label, legend, 
-table, tbody, tfoot, thead, tr, th, td, 
+html, body, div, span,
+h1, h2, h3, h4, h5, h6,
+p, a, img, ol, ul, li,
+form, label, legend,
+table, tbody, tfoot, thead, tr, th, td,
 input, textarea, button {
     border: 0 none;
     margin: 0;
@@ -84,7 +84,7 @@ p{
 p:last-child{
 	margin-bottom:0;
 }
-	
+
 /* ==== Preloader ==== */
 
 .preloader {
@@ -135,10 +135,10 @@ p:last-child{
 }
 
 @keyframes bouncedelay {
-	0%, 80%, 100% { 
+	0%, 80%, 100% {
 		transform: scale(0.0);
 		-webkit-transform: scale(0.0);
-	} 40% { 
+	} 40% {
 		transform: scale(1.0);
 		-webkit-transform: scale(1.0);
 	}

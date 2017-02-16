@@ -5,17 +5,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<title>Stem Greenhouse</title>
-		<meta name="description" content="Responsive, Mobile First, Bootstrap 3, Agency, Clean, Creative, Photography, Portfolio, Business, Corporate, Dark, Modern">
-		<meta name="author" content="Vardo">
 		<link href='https://fonts.googleapis.com/css?family=Lato:400,700,300' rel='stylesheet' type='text/css'>
 		<link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
 		<link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,700' rel='stylesheet' type='text/css'>
 		<link rel="icon" type="image/ico" href="favicon.png">
-		<link rel="apple-touch-icon" href="apple-touch-icon.png">
-		<link rel="apple-touch-icon" sizes="72x72" href="apple-touch-icon-72x72.png">
-		<link rel="apple-touch-icon" sizes="114x114" href="apple-touch-icon-114x114.png">
 		<link rel="image_src" href="thumbnail.png">
-		<link href="/css/style-theme.css" rel="stylesheet">
+		<link href="{{ url_for('static', filename='css/style-theme.css') }}" />
 	</head>
 	<body>
 
@@ -30,7 +25,7 @@
 		<!-- END Preloader -->
 
 		<!-- BEGIN Intro -->
-		<div class="intro" id="intro" style="background-image:url(https://www.mylinea.com/wp-content/uploads/Snowy-Mountain-Chain-1920%C3%971080-Wallpaper.jpg);">
+		<div class="intro" id="intro" style="background: color url('static/images/wallpaper.jpg');">
 
 			<div class="layer-bg"></div>
 

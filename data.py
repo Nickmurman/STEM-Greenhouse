@@ -1,6 +1,7 @@
 #TODO make packageable
 """
-This module handles all the data incoming and writes it to a file.
+This module handles all the incoming data and writes it to a file as well as
+creating graphs.
 """
 from time import sleep
 import datetime
@@ -8,13 +9,14 @@ import serial
 import pygal
 import logging
 
-logging.basicConfig(filename='data.log', level=logging.DEBUG)
+#Configuring Logging
+#logging.basicConfig(filename='data.log', level=logging.DEBUG,
+#format='%(asctime)s' '%(message)s')
 
-
+#Establishing the Data Sources for the data
 DATA_SOURCE = {
-    1 : 'AdTemp1', 2 : 'AdTemp2', 3 : 'AdTemp3', 4 : 'AdTemp4', 5 : 'AdTemp5',
-    6 : 'AdHumid1', 7 : 'AdHumid2', 8 : 'AdHumid3', 9 : 'AdHumid4',
-    10 : 'AdHumid5'}
+    "T1" : 'TempSen1', "T2" : 'TempSen2', "T3" : 'TempSen3', "T4" : 'TempSen4',
+    "H1" : 'HumidSen1', "H2" : 'HumidSen2', "H3" : 'HumidSen3', "H4" : 'HumidSen4'}
 
 class DataSet(object):
     """
@@ -36,102 +38,89 @@ class DataSet(object):
         """call() simply returns all the values stored in the DataPoint"""
         return self.id, self.value, self.time
 
+
 def log_serial_error(ardnum):
-    logging.warning('Warning, Arduino %s didn\'t send data when requested', ardnum)
+#    logging.warning(' Warning, Sensor %s didn\'t send data when requested', ardnum)
+    pass
+#Establish the correct serial buffer for each sensor and graph
+# THSER = serial.Serial(, 9600)
+# WSER = serial.Serial(, 9600)
 
 #Selecting all the files that will be used to record data
 TEMPFILE_1 = open('data/ardtemps1.txt', 'r+')
 TEMPFILE_2 = open('data/ardtemps2.txt', 'r+')
 TEMPFILE_3 = open('data/ardtemps3.txt', 'r+')
 TEMPFILE_4 = open('data/ardtemps4.txt', 'r+')
-TEMPFILE_5 = open('data/ardtemps5.txt', 'r+')
 
 HUMIDFILE_1 = open('data/ardhumids1.txt', 'r+')
 HUMIDFILE_2 = open('data/ardhumids2.txt', 'r+')
 HUMIDFILE_3 = open('data/ardhumids3.txt', 'r+')
 HUMIDFILE_4 = open('data/ardhumids4.txt', 'r+')
-HUMIDFILE_5 = open('data/ardhumids5.txt', 'r+')
+
 
 TEMPSTORAGE_1 = []
 TEMPSTORAGE_2 = []
 TEMPSTORAGE_3 = []
 TEMPSTORAGE_4 = []
-TEMPSTORAGE_5 = []
 
 HUMIDSTORAGE_1 = []
 HUMIDSTORAGE_2 = []
 HUMIDSTORAGE_3 = []
 HUMIDSTORAGE_4 = []
-HUMIDSTORAGE_5 = []
 
 TIMESTORAGE = []
 
-SER1 = serial.Serial('/dev/ttyUSB0', 9600)
-SER2 = serial.Serial('/dev/ttyUSB1', 9600)
-SER3 = serial.Serial('/dev/ttyUSB2', 9600)
-SER4 = serial.Serial('/dev/ttyUSB3', 9600)
+def start_reading_data():
+    while True:
+        COUNTER = 0
+        #Make sure the date recorded for the data is the current time
+        DATETIME = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-while True:
-    COUNTER = 0
-    #Make sure the date recorded for the data is the current time
-    DATETIME = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        TIMESTORAGE.append(DATETIME)
+        try:
+            CURRENT_LINE = SER.readline().decode().strip()
+        except IOError:
+            logging.error("Error, no data received")
 
-    TIMESTORAGE.append(DATETIME)
-
-    try:
-        #Convert the data from the serial buffer into a normal string
-        CURRENT_HUMID_1 = str(SER1.readline().decode().strip())
-        HUMIDSTORAGE_1.append(CURRENT_HUMID_1)
-    except IOError:
-        log_serial_error(1)
-
-    try:
-        CURRENT_HUMID_2 = str(SER2.readline().decode().strip())
-        HUMIDSTORAGE_2.append(CURRENT_HUMID_2)
-    except IOError:
-        log_serial_error(2)
-
-    try:
-        CURRENT_HUMID_3 = str(SER3.readline().decode().strip())
-        HUMIDSTORAGE_3.append(CURRENT_HUMID_3)
-    except IOError:
-        log_serial_error()
-
-    try:
-        CURRENT_HUMID_4 = str(SER4.readline().decode().strip())
-        HUMIDSTORAGE_4.append(CURRENT_HUMID_4)
-    except IOError:
-        log_serial_error()
-
-        #TODO Figure out how to read data correctly twice from one arduino.
-        #CURRENT_HUMID_5 = str(SER5.readline().decode().strip())
-
-    try:
-        CURRENT_TEMP_1 = str(SER1.readline().decode().strip())
-        TEMPSTORAGE_1.append(CURRENT_TEMP_1)
-    except IOError:
-        log_serial_error()
-
-    try:
-        CURRENT_TEMP_2 = str(SER2.readline().decode().strip())
-        TEMPSTORAGE_2.append(CURRENT_TEMP_2)
-    except IOError:
-        log_serial_error()
-
-    try:
-        CURRENT_TEMP_3 = str(SER3.readline().decode().strip())
-        TEMPSTORAGE_3.append(CURRENT_TEMP_3)
-    except IOError:
-        log_serial_error()
-
-    try:
-        CURRENT_TEMP_4 = str(SER4.readline().decode().strip())
-        TEMPSTORAGE_4.append(CURRENT_TEMP_4)
-    except IOError:
-        log_serial_error()
-
-    #CURRENT_TEMP_5 = str(SER5.readline().decode().strip())
-
+        try:
+            if CURRENT_LINE[3] == '1':
+                if CURRENT_LINE[5] == 'H':
+                    HUMID = DataSet(DATA_SOURCE["H1"], CURRENT_LINE[7:12], DATETIME)
+                    HUMID_STORAGE.append(HUMID)
+                elif CURRENT_LINE[5] == 'T':
+                    TEMP = DataSet(DATA_SOURCE["T1"], CURRENT_LINE[7:12], DATETIME)
+                    TEMP_STORAGE.append(TEMP)
+                else:
+                    log_serial_error(1)
+            if CURRENT_LINE[3] == '2':
+                if CURRENT_LINE[5] == 'H':
+                    HUMID = DataSet(DATA_SOURCE["H2"], CURRENT_LINE[7:12], DATETIME)
+                    HUMID_STORAGE.append(HUMID)
+                elif CURRENT_LINE[5] == 'T':
+                    TEMP = DataSet(DATA_SOURCE["T2"], CURRENT_LINE[7:12], DATETIME)
+                    TEMP_STORAGE.append(TEMP)
+                else:
+                    log_serial_error(2)
+            if CURRENT_LINE[3] == '3':
+                if CURRENT_LINE[5] == 'H':
+                    HUMID = DataSet(DATA_SOURCE["H3"], CURRENT_LINE[7:12], DATETIME)
+                    HUMID_STORAGE.append(HUMID)
+                elif CURRENT_LINE[5] == 'T':
+                    TEMP = DataSet(DATA_SOURCE["T3"], CURRENT_LINE[7:12], DATETIME)
+                    TEMP_STORAGE.append(TEMP)
+                else:
+                    log_serial_error(3)
+            if CURRENT_LINE[3] == '4':
+                if CURRENT_LINE[5] == 'H':
+                    HUMID = DataSet(DATA_SOURCE["H4"], CURRENT_LINE[7:12], DATETIME)
+                    HUMID_STORAGE.append(HUMID)
+                elif CURRENT_LINE[5] == 'T':
+                    TEMP = DataSet(DATA_SOURCE["T4"], CURRENT_LINE[7:12], DATETIME)
+                    TEMP_STORAGE.append(TEMP)
+                else:
+                    log_serial_error(4)
+        except IOError:
+            logging.error('Error, Arduino didn\'t send data when requested.')
 
     if COUNTER >= 4:
         for x in HUMIDSTORAGE_1:
@@ -143,7 +132,6 @@ while True:
         for x in HUMIDSTORAGE_4:
             HUMIDFILE_4.write(x)
 
-
         for x in TEMPSTORAGE_1:
             TEMPFILE_1.write(x)
         for x in TEMPSTORAGE_2:
@@ -153,40 +141,35 @@ while True:
         for x in TEMPSTORAGE_4:
             TEMPFILE_4.write(x)
 
-
         TEMP_CHART = pygal.Line(style=DarkStyle, width=1600, height=800,
         range=(0, 31))
         TEMP_CHART.title = 'Temperature Chart for the Last Hour'
         TEMP_CHART.x_labels = map(str, TIMESTORAGE)
-        TEMP_CHART.add('Arduino 1', TEMPSTORAGE_1)
-        TEMP_CHART.add('Arduino 2', TEMPSTORAGE_2)
-        TEMP_CHART.add('Arduino 3', TEMPSTORAGE_3)
-        TEMP_CHART.add('Arduino 4', TEMPSTORAGE_4)
+        TEMP_CHART.add('Sensor 1', TEMPSTORAGE_1)
+        TEMP_CHART.add('Sensor 2', TEMPSTORAGE_2)
+        TEMP_CHART.add('Sensor 3', TEMPSTORAGE_3)
+        TEMP_CHART.add('Sensor 4', TEMPSTORAGE_4)
         TEMP_CHART.render_to_png('/home/aegon/Documents/STEM-Greenhouse/templates/tempchart.png')
 
         HUMID_CHART = pygal.Line(style=DarkStyle, width=1600, height=800,
-        range=(0, 31))
-        HUMID_CHART.title = 'Temperature Chart for the Last Hour'
+        range=(10, 91))
+        HUMID_CHART.title = 'Humidity Chart for the Last Hour'
         HUMID_CHART.x_labels = map(str, TIMESTORAGE)
-        HUMID_CHART.add('Arduino 1', TEMPSTORAGE_1)
-        HUMID_CHART.add('Arduino 2', TEMPSTORAGE_2)
-        HUMID_CHART.add('Arduino 3', TEMPSTORAGE_3)
-        HUMID_CHART.add('Arduino 4', TEMPSTORAGE_4)
-        HUMID_CHART.render_to_png('/home/aegon/Documents/STEM-Greenhouse/templates/tempchart.png')
+        HUMID_CHART.add('Sensor 1', HUMIDSTORAGE_1)
+        HUMID_CHART.add('Sensor 2', HUMIDSTORAGE_2)
+        HUMID_CHART.add('Sensor 3', HUMIDSTORAGE_3)
+        HUMID_CHART.add('Sensor 4', HUMIDSTORAGE_4)
+        HUMID_CHART.render_to_png('/home/aegon/Documents/STEM-Greenhouse/templates/humidchart.png')
+
+        HUMIDSTORAGE_1.clear()
+        HUMIDSTORAGE_3.clear()
+        HUMIDSTORAGE_2.clear()
+        HUMIDSTORAGE_4.clear()
+
+        TEMPSTORAGE_1.clear()
+        TEMPSTORAGE_2.clear()
+        TEMPSTORAGE_3.clear()
+        TEMPSTORAGE_4.clear()
 
     COUNTER += 1
     sleep(1)
-        #print('Generating Temp Graph')
-        #temp_chart = pygal.Line(style=DarkStyle, width=1600, height=800)
-        #temp_chart.title = 'Temperature Chart for the Last 10 Readings'
-        #temp_chart.x_labels = map(str, timestorage)
-        #temp_chart.add('Arduino 1', tempstorage)
-        #temp_chart.render_to_png('/home/aegon/Documents/STEM-Greenhouse/tempchart.png')
-
-        #print('Generating Humid Graph')
-        #humid_chart = pygal.Line(style=DarkStyle, width=1600, height=800)
-        #humid_chart.title = 'Humidity Chart for the Last 10 Readings'
-        #humid_chart.x_labels = map(str, timestorage)
-        #humid_chart.add('Arduino 1', humidstorage)
-        #humid_chart.render_to_png('/home/aegon/Documents/STEM-Greenhouse/humidchart.png')
-        #counter = 0
