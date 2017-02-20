@@ -16,7 +16,8 @@ import logging
 #Establishing the Data Sources for the data
 DATA_SOURCE = {
     "T1" : 'TempSen1', "T2" : 'TempSen2', "T3" : 'TempSen3', "T4" : 'TempSen4',
-    "H1" : 'HumidSen1', "H2" : 'HumidSen2', "H3" : 'HumidSen3', "H4" : 'HumidSen4'}
+    "H1" : 'HumidSen1', "H2" : 'HumidSen2', "H3" : 'HumidSen3', "H4" : 'HumidSen4',
+    "W1" : 'RCSen', "W2" : "ECSen", "W3" : 'PPMSen', "W4" : "WTempSen"}
 
 class DataSet(object):
     """
@@ -40,8 +41,7 @@ class DataSet(object):
 
 
 def log_serial_error(ardnum):
-#    logging.warning(' Warning, Sensor %s didn\'t send data when requested', ardnum)
-    pass
+    logging.warning(' Warning, Sensor %s didn\'t send data when requested', ardnum)
 #Establish the correct serial buffer for each sensor and graph
 # THSER = serial.Serial(, 9600)
 # WSER = serial.Serial(, 9600)
@@ -57,6 +57,10 @@ HUMIDFILE_2 = open('data/ardhumids2.txt', 'r+')
 HUMIDFILE_3 = open('data/ardhumids3.txt', 'r+')
 HUMIDFILE_4 = open('data/ardhumids4.txt', 'r+')
 
+WRCFILE = open('data/ardrc.txt', 'r+')
+WECFILE = open('data/ardec.txt', 'r+')
+WPPMFILE = open('data/ardppm.txt', 'r+')
+WTEMPFILE = open('data/ardwtemp.txt', 'r+')
 
 TEMPSTORAGE_1 = []
 TEMPSTORAGE_2 = []
@@ -68,6 +72,11 @@ HUMIDSTORAGE_2 = []
 HUMIDSTORAGE_3 = []
 HUMIDSTORAGE_4 = []
 
+WRCSTORAGE = []
+WECSTORAGE = []
+WPPMSTORAGE = []
+WTEMPSTORAGE = []
+
 TIMESTORAGE = []
 
 def start_reading_data():
@@ -78,49 +87,86 @@ def start_reading_data():
 
         TIMESTORAGE.append(DATETIME)
         try:
-            CURRENT_LINE = SER.readline().decode().strip()
+            TH_CURRENT_LINE = THSER.readline().decode().strip()
         except IOError:
-            logging.error("Error, no data received")
+            logging.error("Error, no temp/humidity data received")
 
         try:
-            if CURRENT_LINE[3] == '1':
-                if CURRENT_LINE[5] == 'H':
-                    HUMID = DataSet(DATA_SOURCE["H1"], CURRENT_LINE[7:12], DATETIME)
+            W_CURRENT_LINE = WSER.readline().decode().strip()
+        except IOError:
+            logging.error("Error, no water data received")
+
+
+        try:
+            if TH_CURRENT_LINE[3] == '1':
+                if TH_CURRENT_LINE[5] == 'H':
+                    HUMID = DataSet(DATA_SOURCE["H1"], TH_CURRENT_LINE[7:12], DATETIME)
                     HUMID_STORAGE.append(HUMID)
-                elif CURRENT_LINE[5] == 'T':
-                    TEMP = DataSet(DATA_SOURCE["T1"], CURRENT_LINE[7:12], DATETIME)
+                elif THCURRENT_LINE[5] == 'T':
+                    TEMP = DataSet(DATA_SOURCE["T1"], TH_CURRENT_LINE[7:12], DATETIME)
                     TEMP_STORAGE.append(TEMP)
                 else:
                     log_serial_error(1)
-            if CURRENT_LINE[3] == '2':
-                if CURRENT_LINE[5] == 'H':
-                    HUMID = DataSet(DATA_SOURCE["H2"], CURRENT_LINE[7:12], DATETIME)
+            if TH_CURRENT_LINE[3] == '2':
+                if TH_CURRENT_LINE[5] == 'H':
+                    HUMID = DataSet(DATA_SOURCE["H2"], TH_CURRENT_LINE[7:12], DATETIME)
                     HUMID_STORAGE.append(HUMID)
-                elif CURRENT_LINE[5] == 'T':
-                    TEMP = DataSet(DATA_SOURCE["T2"], CURRENT_LINE[7:12], DATETIME)
+                elif TH_CURRENT_LINE[5] == 'T':
+                    TEMP = DataSet(DATA_SOURCE["T2"], TH_CURRENT_LINE[7:12], DATETIME)
                     TEMP_STORAGE.append(TEMP)
                 else:
                     log_serial_error(2)
-            if CURRENT_LINE[3] == '3':
-                if CURRENT_LINE[5] == 'H':
-                    HUMID = DataSet(DATA_SOURCE["H3"], CURRENT_LINE[7:12], DATETIME)
+            if TH_CURRENT_LINE[3] == '3':
+                if TH_CURRENT_LINE[5] == 'H':
+                    HUMID = DataSet(DATA_SOURCE["H3"], TH_CURRENT_LINE[7:12], DATETIME)
                     HUMID_STORAGE.append(HUMID)
-                elif CURRENT_LINE[5] == 'T':
-                    TEMP = DataSet(DATA_SOURCE["T3"], CURRENT_LINE[7:12], DATETIME)
+                elif TH_CURRENT_LINE[5] == 'T':
+                    TEMP = DataSet(DATA_SOURCE["T3"], TH_CURRENT_LINE[7:12], DATETIME)
                     TEMP_STORAGE.append(TEMP)
                 else:
                     log_serial_error(3)
-            if CURRENT_LINE[3] == '4':
-                if CURRENT_LINE[5] == 'H':
-                    HUMID = DataSet(DATA_SOURCE["H4"], CURRENT_LINE[7:12], DATETIME)
+            if TH_CURRENT_LINE[3] == '4':
+                if TH_CURRENT_LINE[5] == 'H':
+                    HUMID = DataSet(DATA_SOURCE["H4"], TH_CURRENT_LINE[7:12], DATETIME)
                     HUMID_STORAGE.append(HUMID)
-                elif CURRENT_LINE[5] == 'T':
-                    TEMP = DataSet(DATA_SOURCE["T4"], CURRENT_LINE[7:12], DATETIME)
+                elif TH_CURRENT_LINE[5] == 'T':
+                    TEMP = DataSet(DATA_SOURCE["T4"], TH_CURRENT_LINE[7:12], DATETIME)
                     TEMP_STORAGE.append(TEMP)
                 else:
                     log_serial_error(4)
         except IOError:
-            logging.error('Error, Arduino didn\'t send data when requested.')
+            logging.error('Error, Temp/Humid Arduino didn\'t send data when requested.')
+
+        #TODO Make sure the slices are correct
+        try:
+            if W_CURRENT_LINE[0:2] == "Rc":
+                rc = DataSet(DATA_SOURCE["W1"], W_CURRENT_LINE[:], DATETIME)
+                WRCSTORAGE.append(rc)
+            else:
+                log_serial_error("W1")
+
+            if W_CURRENT_LINE[4:6] == "EC":
+                ec = DataSet(DATA_SOURCE["W2"], W_CURRENT_LINE[:], DATETIME)
+                WECSTORAGE.append(ec)
+            else:
+                log_serial_error("W2")
+
+            if W_CURRENT_LINE[8:10] == "ppm":
+                ppm = DataSet(DATA_SOURCE["W3"], W_CURRENT_LINE[:], DATETIME)
+                WPPMSTORAGE.append(ppm)
+            else:
+                log_serial_error("W3")
+
+            if W_CURRENT_LINE[12:14] == "*C":
+                wtemp = DataSet(DATA_SOURCE["W4"], W_CURRENT_LINE[:], DATETIME)
+                WTEMPSTORAGE.append(wtemp)
+            else:
+                log_serial_error("W4")
+
+        except IOError:
+            logging.error('Error, Water Arduino\'t send data when requested')
+
+
 
     if COUNTER >= 4:
         for x in HUMIDSTORAGE_1:
@@ -141,6 +187,15 @@ def start_reading_data():
         for x in TEMPSTORAGE_4:
             TEMPFILE_4.write(x)
 
+        for x in WRCSTORAGE:
+            WRCFILE.write(x)
+        for x in WECSTORAGE:
+            WECFILE.write(x)
+        for x in WPPMSTORAGE:
+            WPPMFILE.write(x)
+        for x in WTEMPSTORAGE:
+            WTEMPFILE.write(x)
+
         TEMP_CHART = pygal.Line(style=DarkStyle, width=1600, height=800,
         range=(0, 31))
         TEMP_CHART.title = 'Temperature Chart for the Last Hour'
@@ -152,7 +207,7 @@ def start_reading_data():
         TEMP_CHART.render_to_png('/home/aegon/Documents/STEM-Greenhouse/templates/tempchart.png')
 
         HUMID_CHART = pygal.Line(style=DarkStyle, width=1600, height=800,
-        range=(10, 91))
+        range=(0, 101))
         HUMID_CHART.title = 'Humidity Chart for the Last Hour'
         HUMID_CHART.x_labels = map(str, TIMESTORAGE)
         HUMID_CHART.add('Sensor 1', HUMIDSTORAGE_1)

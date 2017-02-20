@@ -2,9 +2,15 @@ from flask import Flask, render_template
 import data
 import logging
 app = Flask(__name__)
+app.config.from_object(__name__)
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
 
+app.config.update(dict(
+    SECRET_KEY = 'dev key'
+    USERNAME = 'admin'
+    PASSWORD = 'password'
+))
 
 @app.route('/')
 def index():
