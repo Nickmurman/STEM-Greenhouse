@@ -1,0 +1,3 @@
+graft greenhousemonitor/templates
+graft greenhousemonitor/static
+graft greenhousemonitor/data

@@ -1,2 +1,4 @@
 # STEM-Greenhouse
-HTML and CSS for the Stem Greenhouse class project webpage
+We are working to create a website for our school's STEM program. We are building a greenhouse and we are responsible for creating a website that displays real time data from the greenhouse. 
+
+
